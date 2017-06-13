@@ -88,6 +88,11 @@ With this, the compiler can protect your code from common flaws like double free
 use after free, add bounds check to buffers, etc. It is even able to know which
 part of the code owns which part of the memory, and warn you when your code manipulates
 data from multiple threads.
+Rust has been available for years now (first stable release in May 2015), and has been
+steadily improving. An interesting part of that approach focused on the compiler
+is that, if someone actually finds a memory safety issue, instead of fixing it
+in their code, they can improve the compiler so that nobody will ever get that issue
+again. Do not fix bugs, fix bug classes.
 As you learn more Rust, you tend to rely more and more on the compiler to verify
 the code, instead of keeping track of dozens of pointers in your head, thus freeing
 you to think about the more valuable parts of the application.
@@ -102,61 +107,39 @@ to be used by C (or other languages) applications. This is a crucial part when
 rewriting C code: sometimes, we have to expose and manipulate the exact same types
 the target application is using.
 
-Writing parsers manually in Rust is not enough
+Writing parsers manually in Rust is not enough. We can still find bugs, although
+they are often less critical than the ones you would find in C applications
+( https://github.com/rust-fuzz/trophy-case ). Parsing software correctly is hard,
+and anybody can make mistakes.
 
+So we use nom, a parser combinators library written in Rust. Parser combinators
+are an interesting way to handle data. You assemble small functions, like one
+that recognizes "hello", or one that recognizes alphanumerical characters,
+and you combine them to make more complex parsers, through the use of combinators.
+There are combinators for lots of cases, like "terminated", that would apply
+two parsers in a row, then return the result of the first if both are successful,
+or branching combinators that apply different parsers depending on the result of
+a first one.
 
+Those parsers are always functions with the same signature, which means even
+complex parsers can be reused in other ones easily. You end up writing a lot of
+small parsers, than you can test in isolation, and reapply them in larger parsers
+as you see fit.
+On the contrary, an approach based on parsers generated from a grammar often tend
+to lack flexibility, and are harder to test. They are also quite restrictive in
+what you can allow from the format you are trying to pass. On the other hand,
+since nom parsers are just functions, you can perform whatever complex, ambiguous,
+dangerous tasks you need to, and as long as the interface is the same, you can plug
+that parser with other ones. This is an important property, since most formats are
+badly designed and can require unsafe manipulations.
 
+nom has been available for some time now, and has been used extensively for various
+formats and protocols in production software.
 
+Armed with a safe, low level language, and a parser library, we can now start rewriting
+core parts of our infrastructure.
 
-Current practices: we can write safe, production ready code right now,
-in safe languages, with sane parsing libraries, and maybe formal proofs
-
-the problem: there's a huge body of code, already running in production,
-that relies on unsafe practices.
-libraries, services, operating systems, on servers, phones, microcontrollers, etc
-it's written in C. Most of our basic libraries were written in the 90s
-(like, libpng still has setjmp based error handling).
-parsers are handwritten, with the parsing mixed within the state
-machine. Some use huge switch statements, others use a lookup table for their
-transitions.
-
-we cannot rewrite those programs entirely: 10K to 10M lines of code.
-Huge swats of unmaintained code, but also a large domain knowledge:
-- lots of bugs were solved
-- lots of experimentation with what's the right way to implement a spec
-(because all specs are wrong)
-- lots of developer knowledge (with the spec, and with the code itself)
-
-rewriting means making a new project, while you still need to maintain the old
-one. It also means converting developers to the new language and practice.
-It's unfeasible in most cases.
-
-what we propose: surgically replace a weak part of an application.
-Parsers are a good target for this, since they can be well isolated
-from the rest of the code.
-
-we keep all the business domain code, that does things with real value.
-Parsing has no value for the application, it should be done fast,
-but that's all.
-But it puts some constraints on how we must do it. It must be well
-integrated with C code. The language we use must easily call C (FFI),
-but also be called by C. A lot of languages assume they will be
-the ones handling everything: the main event loop, sockets,
-memory allocation, etc.
-We cannot even have garbage collection, since that might affect
-too much our host application. As an example, VLC media player
-must synchronize its audio and video correctly.
-
-We chose Rust for various reasons:
-- safe memory handling
-- no garbage collection
-- great integration with C (it can even expose C compatible structures and functions)
-
-We also chose nom, the parser combinators library, because
-handwritten parsers in Rust can still make mistakes.
-cf https://github.com/rust-fuzz/trophy-case
-
-how to replace part of a C application:
+# how to replace part of a C application
 
 The key is in defining the interface correctly. Rust has tools to automate
 this: rust-bindgen to import C structures and functions from C,
