@@ -141,24 +141,52 @@ core parts of our infrastructure.
 
 # how to replace part of a C application
 
-The key is in defining the interface correctly. Rust has tools to automate
-this: rust-bindgen to import C structures and functions from C,
-rusty-cheddar to generate C headers from Rust code. Those tools
-might not generate the best code, but they're a good start,
-you can edit the headers afterwards.
-When generating interfaces, think of how you will link the Rust
-part to the C part. Do you make a static or dynamic library?
-Do you generate an object file that you feed to autotools?
-The rust compiler can generate any of those.
-Integrating Rust libraries: Rust uses the cargo package manager
-to download libraries (called crates). Unfortunately,
-that requires an internet connection to download packages.
-You can use cargo-vendor or cargo-local-registry to download
-crates in advance and store them in an archive somewhere.
+Not all existing applications will support easily a rewrite of their parser. If that
+part of the code is highly coupled with the rest, it will be problematic. Thankfully,
+as said earlier, we do not need to rewrite everything. Find a restricted subset of the
+parser, isolate it, rewrite it, then expand to other parts of the application.
 
-Once you have the buildsystem set up, you can start integrating
-Rust code.
-We would still recommend that you develop the nom parser in a separate
+The key is in defining the interface correctly. Deterministic functions are the easiest
+to replace, and structures are usually the hardest, since multiple parts of the code
+might use directly internal members of that structure (accessors are not a common
+practice in C). But there are a lot of tricks one can use to help in the task.
+As an example, commenting out a member of a structure and launching a build can
+expose all of the uses of that member, which makes it easier to measure how much
+work is needed.
+
+When performing a rewrite, you will often need to import C code, and expose your Rust
+code to C. You can write the Rust definitions and the C headers by hand, but Rust has
+tools to automate this. Rust-bindgen can import C structures and functions from C,
+and generate Rust bindings. While the generated code might be a bit complex at times,
+it is a great way to start a project and generate code that you can edit later.
+The opposite way works as well: you can employ rusty-cheddar to generate C headers from
+
+The missing part for the integration is the linking phase: think of how you will link the Rust
+part to the C part. Do you make a static or dynamic library? Do you generate an object
+file that you feed to autotools? The rust compiler can generate any of those, and they
+can then be handled by the buildsystem, be it autotools and makefiles, CMake, scons, etc.
+
+On the build system side of things, Rust uses the cargo package manager
+to download libraries (called crates), build and link them, publish new libraries and
+applications. That tool greatly increases the productivity of Rust developers.
+Unfortunately, the package management part requires an internet connection to download
+packages, which might not be an option (do you expect your Makefile to make network calls?).
+Fortunately, cargo is easy to extend with separate tooling. You can use cargo-vendor or
+cargo-local-registry to download crates in advance and store them in an archive somewhere.
+That way, you can freeze the dependency list of an application and make its compilation
+reproducible, while keeping a simple way to update dependencies when needed.
+
+
+
+
+
+
+
+
+
+
+Once you have the buildsystem set up, you can start integrating Rust code.
+We would recommend that you develop the nom parser in a separate
 crate: that way, you can reuse it in other projects (Rust or other languages),
 and you can employ Rusts's unit testing and fuzzing facilities.
 Any fuzzing result can then be reused as test case for your parser.
