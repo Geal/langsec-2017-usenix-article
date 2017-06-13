@@ -78,6 +78,34 @@ better protect it from the attacker's point of entry, while keeping the more use
 parts of the code running. To that end, we need languages and tools that can easily
 integrate themselves inside a C application.
 
+## Choosing the tools
+
+We decided on using Rust for various reasons: the language is designed to avoid
+memory vulnerabilities and development issues frequent in other languages.
+There is no garbage collection: the compiler is smart enough to know when to
+allocate and deallocate memory. Or it will not compile if the code cannot be safe.
+With this, the compiler can protect your code from common flaws like double free,
+use after free, add bounds check to buffers, etc. It is even able to know which
+part of the code owns which part of the memory, and warn you when your code manipulates
+data from multiple threads.
+As you learn more Rust, you tend to rely more and more on the compiler to verify
+the code, instead of keeping track of dozens of pointers in your head, thus freeing
+you to think about the more valuable parts of the application.
+
+Along with those features, Rust can work at the same level as C applications.
+There's no runtime. There is no garbage collector (important in time critical software).
+It can even work without an allocator. As an example, it can be used for embedded
+development, from microcontrollers to larger CPUs.
+To that end, Rust code can easily import C functions and structures and use them
+natively, but the opposite works as well: you can expose functions and structures
+to be used by C (or other languages) applications. This is a crucial part when
+rewriting C code: sometimes, we have to expose and manipulate the exact same types
+the target application is using.
+
+Writing parsers manually in Rust is not enough
+
+
+
 
 
 Current practices: we can write safe, production ready code right now,
