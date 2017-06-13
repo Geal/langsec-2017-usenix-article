@@ -1,6 +1,29 @@
 # Langsec and Rust and nom
 
+A large part of our infrastructure is built on a sand castle. We have
+been reusing the same code for decades, the same libraries written in the 90s,
+the same applications, the same operating systems. We tried, and are still
+trying, to maintain them in shape, patching bit by bit, mostly in reaction
+to published vulnerabilities, sometimes as a proactive effort.
+But all that old code is slowing us down.
 
+And if that was not enough, to connect those pieces of code to each other,
+we have pages and pages of unclear, ambiguous specifications for file formats
+and network protocols. How can you be sure your implementation is correct
+when some remove features, some add features, others implement them
+incorrectly, and there are parts that are completely open to interpretation.
+Also, let's mention that one broken application that generates incorrect
+files everyone else must support.
+
+Additionally, most of that software has been written in C (sometimes still
+in the ancient C89), with unsafe practices and insufficient testing.
+
+One could say that it is a miracle all of this has worked until now, but
+there is no luck in that. It is the patient work of thousands of developers
+patiently fixing bugs, and system administrators monitoring failing services.
+But we are losing the race now.
+
+=> quote perry metzger on code churn vs harware churn
 
    Langsec intro, needed or not?
 
@@ -122,6 +145,13 @@ returns with info to drive the input consumption: how many bytes to consume,
 or how many more bytes we need, or stop consuming if there was an error?
 You can then query this state machine for the information you want, and for
 data to write back to the network (in the case of a network protocol).
+If the code is not highly coupled, you could even rewrite function by function,
+since the Rust code can expose C compatible functions. Beware, though:
+take the time to write a correct internal API for Rust code, since at some point,
+you might stop exporting those functions and call the underlying functionality
+directly from Rust.
 
+fun thing to test when fuzzing: write code that uses both parsers, and that panics
+when they don't give the same output.
 
 Talk about replacing a C library with an API compatible Rust one
