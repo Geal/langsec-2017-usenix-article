@@ -18,15 +18,47 @@ files everyone else must support.
 Additionally, most of that software has been written in C (sometimes still
 in the ancient C89), with unsafe practices and insufficient testing.
 
-One could say that it is a miracle all of this has worked until now, but
+One could say it is a miracle all of this has worked until now, but
 there is no luck in that. It is the patient work of thousands of developers
 patiently fixing bugs, and system administrators monitoring failing services.
 But we are losing the race now.
 
-=> quote perry metzger on code churn vs harware churn
+Attackers only get smarter, as what was difficult yesterday gets simple now.
+And the tools only get smarter themselves. More vulnerabilities are published
+everyday, while we keep the same old code and the same development practices.
 
-   Langsec intro, needed or not?
+## We cannot rewrite everything
 
+Whatever the quality of all that code, we cannot replace it. Software gets
+reused over and over, each generation of developers building upon what the
+previous one built. There's much more churn in hardware than software <INSERT
+PERRY METZGER QUOTE HERE>. We can write new software with better solutions,
+but it would not fix the millions of devices currently in place, or the billions
+of applications actually running.
+Our only option is to strengthen the sand castle, bit by bit, until it can weather
+the storm.
+
+How could we achieve that? Even rewriting application by application or library
+by library is a sisyphean task. Most of those projects are written in C,
+from 10k to 10m lines of code. Large parts of that are unmaintained, but there's
+also a huge domain knowledge embedded in the code. Thousands of bug fixes,
+improvements, experimentations with the specifications were done over the
+years. And the developers themselves carry most of this knowledge.
+Rewriting a project completely means losing that knowledge, and hitting most
+of those bugs the old project solved.
+Not to mention, that rewriting the project entirely will create political issues,
+require teaching the new ways to developers, all this while still maintaining
+the old version.
+This is impossible to do in most cases.
+
+Here is what we propose: there are specific parts of applications and libraries,
+weaker than the rest, that could be rewritten, while keeping all of the domain
+knowledge present in the rest of the code. As part of the LangSec movement,
+we concentrate on the parsers and state machines, since file formats and protocols
+are the point of entry in most applications, and an often overlooked and vulnerable
+part of the code.
+
+The LangSec approach is in changing the way we view software:
 we usually see our programs as some kind of engine or industrial machine,
 that we set up and monitor, but largely runs by itself, except for the
 occasional button push. That vision is flawed: our computers, operating systems
@@ -37,6 +69,16 @@ etc, drives your code, it's not the other way. That specific bit at that specifi
 address in the file decides whether your code goes into the if or the else
 of that specific branch. Your application is in fact a virtual machine,
 and its language is the input data. What can we do with this language?
+By modeling correctly that input language, or restricting it to a manageable subset,
+we can greatly reduce the attack surface of our applications, in their most
+vulnerable elements.
+
+If we replace the parsers and protocols in an existing application, we can
+better protect it from the attacker's point of entry, while keeping the more useful
+parts of the code running. To that end, we need languages and tools that can easily
+integrate themselves inside a C application.
+
+
 
 Current practices: we can write safe, production ready code right now,
 in safe languages, with sane parsing libraries, and maybe formal proofs
