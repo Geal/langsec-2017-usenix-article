@@ -176,16 +176,9 @@ cargo-local-registry to download crates in advance and store them in an archive 
 That way, you can freeze the dependency list of an application and make its compilation
 reproducible, while keeping a simple way to update dependencies when needed.
 
+# Start integrating some Rust
 
-
-
-
-
-
-
-
-
-Once you have the buildsystem set up, you can start integrating Rust code.
+Once you have the buildsystem set up, you can start actually writing Rust code.
 We would recommend that you develop the nom parser in a separate
 crate: that way, you can reuse it in other projects (Rust or other languages),
 and you can employ Rusts's unit testing and fuzzing facilities.
@@ -226,13 +219,42 @@ returns with info to drive the input consumption: how many bytes to consume,
 or how many more bytes we need, or stop consuming if there was an error?
 You can then query this state machine for the information you want, and for
 data to write back to the network (in the case of a network protocol).
+
 If the code is not highly coupled, you could even rewrite function by function,
 since the Rust code can expose C compatible functions. Beware, though:
 take the time to write a correct internal API for Rust code, since at some point,
 you might stop exporting those functions and call the underlying functionality
 directly from Rust.
 
-fun thing to test when fuzzing: write code that uses both parsers, and that panics
-when they don't give the same output.
+You could spend a large part of the work making the new parser bug compatible with
+the old one. This is often a bad approach, since both parsers will probably not
+recognize the exact same set of files. You only need to worry about recognizing
+the same representative set of samples. Most C parsers are not even really tested
+regularly anyway. If you still want to get close results to the original parser,
+you could employ a smart fuzzer to do the work of testing the difference. Write
+a program that wraps both the C parser and the new nom one, and that panics if
+both parsers do not return the same result.
 
+Once the parser is written and in the source, be happy, the "interesting" part
+of the work will begin: getting it accepted in the tree, and deciding how you
+will handle the software suddenly requiring a Rust compiler along with the old
+C toolchain.
+
+#Going further
+
+This approahc of surgically rewriting parts of an application works well, as it is
+designed to have a minimal impact on the original project. It can be used as a
+stepping stone to start replacing larger parts of the application, once all the
+details of build systems and developer training are handled.
+
+But some projects could never handle that kind of precise touch. Some libraries,
+still in active use today, have highly coupled spaghetti code, relying heavily
+on goto or setjmp, and are basically untested and unmaintained. This is one of
+the rare cases where we'd recommend rewriting the whole project in Rust. This is
+a place where this language can shine: you could write a whole new library,
+completely API compatible with the old one, that you could drop into package
+managers as an alternative.
+
+Think of how many parts of our infrastructure we could replace like this,
+bit by bit. It's a titanous task, so we need to start now.
 Talk about replacing a C library with an API compatible Rust one
