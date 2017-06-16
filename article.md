@@ -139,7 +139,7 @@ formats and protocols in production software.
 Armed with a safe, low level language, and a parser library, we can now start rewriting
 core parts of our infrastructure.
 
-# how to replace part of a C application
+# How to replace part of a C application
 
 Not all existing applications will support easily a rewrite of their parser. If that
 part of the code is highly coupled with the rest, it will be problematic. Thankfully,
@@ -196,12 +196,88 @@ effects are easy to integrate, and IO is where most of the errors can happen.
 This is also a part that (hopefully) has been stabilized long ago in the
 host application.
 
-The nom parser can return sub slices of the input, and will guarantee
+The nom parser can return sub slices of the input without copying them, and will
+guarantee
 that the data is within the bounds. But in some cases, it does not even
 need to see the whole input. As an example, for media formats, you would
 read a block's header, let nom decide which type of block it is, and the
 parser would tell you how many bytes of the block you need to send to the
 decoder.
+
+Here is the code of the TLS 1.3 ServerHello structure definition and message
+parsing:
+```rust
+pub struct TlsServerHelloV13Contents<'a> {
+    pub version: u16,
+    pub random: &'a[u8],
+    pub cipher: u16,
+
+    pub ext: Option<&'a[u8]>,
+}
+
+pub fn parse_tls_server_hello_tlsv13draft18(i:&[u8])
+    -> IResult<&[u8],TlsMessageHandshake>
+{
+    do_parse!(i,
+        hv:     be_u16 >>
+        random: take!(32) >>
+        cipher: be_u16 >>
+        ext:    opt!(length_bytes!(be_u16)) >>
+        (
+            TlsMessageHandshake::ServerHelloV13(
+                TlsServerHelloV13Contents::new(hv,random,cipher,ext)
+            )
+        )
+    )
+}
+```
+
+This code generates a parser reading some simple fields, and an optional
+length-value field for the TLS extensions (not parsed in that example), and
+returns a structure. All error cases are properly handled, especially incomplete
+data.
+
+
+One characteristic of TLS is that the parsing of messages is context-specific: the
+content of some messages cannot be decoded without having information about the
+previous messages. For example, the type of the Diffie-Hellman parameters, in
+the ServerKeyExchange message, depends on the ciphersuite from the ServerHello
+message. Because of that, some variables are extracted and stored in a parser
+context, associated to every connection, and passed to higher-level parser
+functions.
+
+Finally, the combinator features of nom are especially useful for protocols like
+TLS: TLS certificates are based on X.509, which uses the DER encoding format. This
+makes writing independent parser easier, for example as in the following code:
+
+```rust
+use x509::parse_x509_certificate;
+
+/// Read several certificates from the input buffer
+/// and return them as a list.
+pub fn parse_tls_certificate_list(i:&[u8])
+    -> IResult<&[u8],Vec<X509Certificate>>
+{
+    many1!(i,parse_x509_certificate)
+}
+```
+
+Parsing an X.509 certificate is done by combining the DER parsing functions:
+```rust
+pub fn x509_parser(i:&[u8]) -> IResult<&[u8],X509Certificate> {
+    map!(i,
+         parse_der_defined!(
+             0x10,
+             parse_tbs_certificate,
+             parse_algorithm_identifier,
+             parse_der_bitstring
+         ),
+         |(_hdr,o)| X509Certificate::new(o)
+    )
+}
+```
+
+
 
 Be wary of the high coupling that can appear between the parser and the rest
 of the code in some C applications. This is where most of the work can happen.
@@ -240,7 +316,7 @@ of the work will begin: getting it accepted in the tree, and deciding how you
 will handle the software suddenly requiring a Rust compiler along with the old
 C toolchain.
 
-#Going further
+# Going further
 
 This approahc of surgically rewriting parts of an application works well, as it is
 designed to have a minimal impact on the original project. It can be used as a
