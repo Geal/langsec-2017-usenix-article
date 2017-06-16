@@ -242,9 +242,34 @@ One characteristic of TLS is that the parsing of messages is context-specific: t
 content of some messages cannot be decoded without having information about the
 previous messages. For example, the type of the Diffie-Hellman parameters, in
 the ServerKeyExchange message, depends on the ciphersuite from the ServerHello
-message. Because of that, some variables are extracted and stored in a parser
-context, associated to every connection, and passed to higher-level parser
-functions.
+message. Because of that, the context-specific part is separated from the
+parsing. A state is used to store the variables, and a state machine is
+implemented to check that transitions are correct, and also to choose the next
+parsing function when needed.
+
+The state machine is implemented using pattern matching on the previous state,
+and the parsed incoming message, to select the new state.
+
+```Rust
+match (old_state,msg) {
+    // Server certificate
+    (ClientHello,      &ServerHello(_))       => Ok(ServerHello),
+    (ServerHello,      &Certificate(_))       => Ok(Certificate),
+    // Server certificate, no client certificate requested
+    (Certificate,      &ServerKeyExchange(_)) => Ok(ServerKeyExchange),
+    (Certificate,      &CertificateStatus(_)) => Ok(CertificateSt),
+    (CertificateSt,    &ServerKeyExchange(_)) => Ok(ServerKeyExchange),
+    (ServerKeyExchange,&ServerDone(_))        => Ok(ServerHelloDone),
+    (ServerHelloDone  ,&ClientKeyExchange(_)) => Ok(ClientKeyExchange),
+    // ...
+
+    // All other transitions are considered invalid
+    _ => Err(InvalidTransition),
+```
+
+In some cases, the next state depends not only on the message type, but also
+content. In that case, the packet content is also used in the pattern matching
+to select the new state.
 
 Finally, the combinator features of nom are especially useful for protocols like
 TLS: TLS certificates are based on X.509, which uses the DER encoding format. This
