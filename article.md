@@ -1,4 +1,16 @@
-# Langsec and Rust and nom
+# Safe parsers in Rust: changing the world step by step
+
+[//]: <> (lead paragraph)
+
+Parsers are critical parts of applications, exposed to potentially malicious
+data, but also plagued by the same bugs over years, like memory-related
+problems. Solutions exist, but are not adopted: many of them require to rewrite
+the full software.
+We describe a methodology, based on a pragmatic approach, to improve the
+situation. By surgically replacing functions, we intend to initiate a change
+towards robust and memory-safe parsers.
+
+[//]: <> (end lead paragraph)
 
 A large part of our infrastructure is built on a sand castle. We have
 been reusing the same code for decades, the same libraries written in the 90s,
@@ -39,7 +51,7 @@ Our only option is to strengthen the sand castle, bit by bit, until it can weath
 the storm.
 
 How could we achieve that? Even rewriting application by application or library
-by library is a sisyphean task. Most of those projects are written in C,
+by library is a Sisyphean task. Most of those projects are written in C,
 from 10k to 10m lines of code. Large parts of that are unmaintained, but there's
 also a huge domain knowledge embedded in the code. Thousands of bug fixes,
 improvements, experimentations with the specifications were done over the
