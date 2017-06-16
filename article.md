@@ -25,7 +25,7 @@ But we are losing the race now.
 
 Attackers only get smarter, as what was difficult yesterday gets simple now.
 And the tools only get smarter themselves. More vulnerabilities are published
-everyday, while we keep the same old code and the same development practices.
+every day, while we keep the same old code and the same development practices.
 
 ## We cannot rewrite everything
 
@@ -46,7 +46,7 @@ improvements, experimentations with the specifications were done over the
 years. And the developers themselves carry most of this knowledge.
 Rewriting a project completely means losing that knowledge, and hitting most
 of those bugs the old project solved.
-Not to mention, that rewriting the project entirely will create political issues,
+Not to mention that rewriting the project entirely will create political issues,
 require teaching the new ways to developers, all this while still maintaining
 the old version.
 This is impossible to do in most cases.
@@ -62,19 +62,19 @@ The LangSec approach is in changing the way we view software:
 we usually see our programs as some kind of engine or industrial machine,
 that we set up and monitor, but largely runs by itself, except for the
 occasional button push. That vision is flawed: our computers, operating systems
-and programs are designed to modify their behaviour in complex ways
+and programs are designed to modify their behavior in complex ways
 depending on their input.
 The data you feed to your code, be it network packets, files, sensor data,
-etc, drives your code, it's not the other way. That specific bit at that specific
+etc., drives your code, it's not the other way. That specific bit at that specific
 address in the file decides whether your code goes into the if or the else
 of that specific branch. Your application is in fact a virtual machine,
 and its language is the input data. What can we do with this language?
-By modeling correctly that input language, or restricting it to a manageable subset,
+By modeling that input language correctly, or restricting it to a manageable subset,
 we can greatly reduce the attack surface of our applications, in their most
 vulnerable elements.
 
 If we replace the parsers and protocols in an existing application, we can
-better protect it from the attacker's point of entry, while keeping the more useful
+better protect it from the attacker's point of entry, while keeping the most useful
 parts of the code running. To that end, we need languages and tools that can easily
 integrate themselves inside a C application.
 
@@ -95,7 +95,7 @@ in their code, they can improve the compiler so that nobody will ever get that i
 again. Do not fix bugs, fix bug classes.
 As you learn more Rust, you tend to rely more and more on the compiler to verify
 the code, instead of keeping track of dozens of pointers in your head, thus freeing
-you to think about the more valuable parts of the application.
+you to think about the most valuable parts of the application.
 
 Along with those features, Rust can work at the same level as C applications.
 There's no runtime. There is no garbage collector (important in time critical software).
@@ -123,9 +123,9 @@ a first one.
 
 Those parsers are always functions with the same signature, which means even
 complex parsers can be reused in other ones easily. You end up writing a lot of
-small parsers, than you can test in isolation, and reapply them in larger parsers
+small parsers, then you can test them separately, and reapply them in larger parsers
 as you see fit.
-On the contrary, an approach based on parsers generated from a grammar often tend
+On the contrary, an approach based on parsers generated from a grammar often tends
 to lack flexibility, and are harder to test. They are also quite restrictive in
 what you can allow from the format you are trying to pass. On the other hand,
 since nom parsers are just functions, you can perform whatever complex, ambiguous,
@@ -343,7 +343,7 @@ C toolchain.
 
 # Going further
 
-This approahc of surgically rewriting parts of an application works well, as it is
+This approach of surgically rewriting parts of an application works well, as it is
 designed to have a minimal impact on the original project. It can be used as a
 stepping stone to start replacing larger parts of the application, once all the
 details of build systems and developer training are handled.
@@ -357,5 +357,5 @@ completely API compatible with the old one, that you could drop into package
 managers as an alternative.
 
 Think of how many parts of our infrastructure we could replace like this,
-bit by bit. It's a titanous task, so we need to start now.
+bit by bit. It's a Herculean task, so we need to start now.
 Talk about replacing a C library with an API compatible Rust one
