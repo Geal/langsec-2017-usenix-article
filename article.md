@@ -6,7 +6,7 @@ Parsers are critical parts of applications, exposed to potentially malicious
 data, but also plagued by the same bugs over years, like memory-related
 problems. Solutions exist, but are not adopted: many of them require to rewrite
 the full software.
-We describe how to use Rust and [nom] along with a methodology for making
+We describe how to use Rust and [nom][nom] along with a [methodology][parsers17] for making
 existing software much more secure.
 By surgically replacing functions, we intend to initiate a change
 towards robust and memory-safe parsers.
@@ -125,7 +125,7 @@ they are often less critical than the ones you would find in C applications
 ( https://github.com/rust-fuzz/trophy-case ). Parsing software correctly is hard,
 and anybody can make mistakes.
 
-So we use nom, a parser combinators library written in Rust. Parser combinators
+So we use [nom][nom], a parser combinators library written in Rust. Parser combinators
 are an interesting way to handle data. You assemble small functions, like one
 that recognizes "hello", or one that recognizes alphanumerical characters,
 and you combine them to make more complex parsers, through the use of combinators.
@@ -145,6 +145,11 @@ since nom parsers are just functions, you can perform whatever complex, ambiguou
 dangerous tasks you need to, and as long as the interface is the same, you can plug
 that parser with other ones. This is an important property, since most formats are
 badly designed and can require unsafe manipulations.
+
+The nom library leverages Rust features for performance and safety: since the compiler
+always knows which part of the code owns which part of the memory, and tracks references
+properly, nom can work on slices of the original data instead of copying bytes
+around. In most cases, the parser will only allocate on the stack and be [zero-copy][[nom-langsec-15].
 
 nom has been available for some time now, and has been used extensively for various
 formats and protocols in production software.
@@ -380,6 +385,7 @@ The parsers and tools are published in the [Rusticata][rusticata] and
 
 [nom]: https://github.com/Geal/nom "Rust parser combinator framework"
 [langsec]: http://spw17.langsec.org "LangSec Workshop"
+[nom-langsec-15] http://spw15.langsec.org/papers/couprie-nom.pdf "Nom, a Byte-oriented, Streaming, Zero-copy Parser Combinators Library in Rust"
 [parsers17]: http://spw17.langsec.org/papers/chifflier-parsing-in-2017.pdf "Writing parsers like it is 2017"
 [rusticata]: https://github.com/rusticata "Rusticata: Safe parsers community"
 [vlcmodule]: https://github.com/Geal/vlc_module.rs "Helper library to write VLC modules in Rust"
