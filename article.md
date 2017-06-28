@@ -43,8 +43,8 @@ every day, while we keep the same old code and the same development practices.
 
 Whatever the quality of all that code, we cannot replace it. Software gets
 reused over and over, each generation of developers building upon what the
-previous one built. There's much more churn in hardware than software <INSERT
-PERRY METZGER QUOTE HERE>. We can write new software with better solutions,
+previous one built. There's much more churn in hardware than software: hardware
+gets replaced, software stays. We can write new software with better solutions,
 but it would not fix the millions of devices currently in place, or the billions
 of applications actually running.
 Our only option is to strengthen the sand castle, bit by bit, until it can weather
@@ -218,6 +218,7 @@ decoder.
 
 Here is the code of the TLS 1.3 ServerHello structure definition and message
 parsing:
+
 ```rust
 pub struct TlsServerHelloV13Contents<'a> {
     pub version: u16,
@@ -370,4 +371,3 @@ managers as an alternative.
 
 Think of how many parts of our infrastructure we could replace like this,
 bit by bit. It's a Herculean task, so we need to start now.
-Talk about replacing a C library with an API compatible Rust one
