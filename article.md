@@ -374,3 +374,4 @@ Think of how many parts of our infrastructure we could replace like this,
 bit by bit. It's a Herculean task, so we need to start now.
 
 [nom]: https://github.com/Geal/nom "Rust parser combinator framework"
+[parsers17]: http://spw17.langsec.org/papers/chifflier-parsing-in-2017.pdf "Writing parsers like it is 2017]
