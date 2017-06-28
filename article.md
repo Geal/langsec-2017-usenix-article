@@ -6,8 +6,9 @@ Parsers are critical parts of applications, exposed to potentially malicious
 data, but also plagued by the same bugs over years, like memory-related
 problems. Solutions exist, but are not adopted: many of them require to rewrite
 the full software.
-We describe a methodology, based on a pragmatic approach, to improve the
-situation. By surgically replacing functions, we intend to initiate a change
+We describe how to use Rust and [nom] along with a methodology for making
+existing software much more secure.
+By surgically replacing functions, we intend to initiate a change
 towards robust and memory-safe parsers.
 
 [//]: <> (end lead paragraph)
@@ -28,7 +29,7 @@ Also, let's mention that one broken application that generates incorrect
 files everyone else must support.
 
 Additionally, most of that software has been written in C (sometimes still
-in the ancient C89), with unsafe practices and insufficient testing.
+written in K&R), with unsafe practices and insufficient testing.
 
 One could say it is a miracle all of this has worked until now, but
 there is no luck in that. It is the patient work of thousands of developers
@@ -371,3 +372,5 @@ managers as an alternative.
 
 Think of how many parts of our infrastructure we could replace like this,
 bit by bit. It's a Herculean task, so we need to start now.
+
+[nom]: https://github.com/Geal/nom "Rust parser combinator framework"
