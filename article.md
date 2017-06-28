@@ -6,7 +6,7 @@ Parsers are critical parts of applications, exposed to potentially malicious
 data, but also plagued by the same bugs over years, like memory-related
 problems. Solutions exist, but are not adopted: many of them require to rewrite
 the full software.
-We describe how to use Rust and [nom][nom] along with a [methodology][parsers17] for making
+We describe how to use Rust and [nom][nom] along with a [methodology][parsers17] to make
 existing software much more secure.
 By surgically replacing functions, we intend to initiate a change
 towards robust and memory-safe parsers.
