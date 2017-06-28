@@ -66,8 +66,8 @@ This is impossible to do in most cases.
 
 Here is what we propose: there are specific parts of applications and libraries,
 weaker than the rest, that could be rewritten, while keeping all of the domain
-knowledge present in the rest of the code. As part of the LangSec movement,
-we concentrate on the parsers and state machines, since file formats and protocols
+knowledge present in the rest of the code.
+We concentrate on the parsers and state machines, since file formats and protocols
 are the point of entry in most applications, and an often overlooked and vulnerable
 part of the code.
 
@@ -372,6 +372,8 @@ managers as an alternative.
 
 Think of how many parts of our infrastructure we could replace like this,
 bit by bit. It's a Herculean task, so we need to start now.
+This work was presented in the [LangSec Workshop][langsec], in the [Writing Parsers Like It Is 2017][parsers17] paper.
 
 [nom]: https://github.com/Geal/nom "Rust parser combinator framework"
-[parsers17]: http://spw17.langsec.org/papers/chifflier-parsing-in-2017.pdf "Writing parsers like it is 2017]
+[langsec]: http://spw17.langsec.org "LangSec Workshop"
+[parsers17]: http://spw17.langsec.org/papers/chifflier-parsing-in-2017.pdf "Writing parsers like it is 2017"
