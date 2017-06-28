@@ -372,8 +372,14 @@ managers as an alternative.
 
 Think of how many parts of our infrastructure we could replace like this,
 bit by bit. It's a Herculean task, so we need to start now.
-This work was presented in the [LangSec Workshop][langsec], in the [Writing Parsers Like It Is 2017][parsers17] paper.
+
+This work was presented in the [LangSec Workshop][langsec], in the [Writing
+Parsers Like It Is 2017][parsers17] paper.
+The parsers and tools are published in the [Rusticata][rusticata] and
+[vlc_module][vlcmodule] GitHub projects.
 
 [nom]: https://github.com/Geal/nom "Rust parser combinator framework"
 [langsec]: http://spw17.langsec.org "LangSec Workshop"
 [parsers17]: http://spw17.langsec.org/papers/chifflier-parsing-in-2017.pdf "Writing parsers like it is 2017"
+[rusticata]: https://github.com/rusticata "Rusticata: Safe parsers community"
+[vlcmodule]: https://github.com/Geal/vlc_module.rs "Helper library to write VLC modules in Rust"
